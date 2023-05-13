@@ -1,36 +1,22 @@
-# code-challenge
-Indicium code challenge for Software Developer focusing on data projects
+# Introdução 
 
-# Indicium Tech Code Challenge
+Projeto desenvolvido a partir de um desafio de Engenharia de Dados, no qual havia a necessidade de criação de uma pipeline completa.
 
-Code challenge for Software Developer with focus in data projects.
+# O Desafio
 
+Foram disponibilizados duas fontes de dados: um banco de dados Postgres e um arquivo CSV. O arquivo CSV representa detalhes das ordens de um sistema de ecommerce. O banco de dados é disponibilizado pela Microsoft para fins educacionais, chamado de Northwind, a única diferença é que a tabela order_detail não existe no banco, já que está sendo disponibilizada em CSV.
 
-## Context
-
-At Indicium we have many projects where we develop the whole data pipeline for our client, from extracting data from many data sources to loading this data at its final destination, with this final destination varying from a data warehouse for a Business Intelligency tool to an api for integrating with third party systems.
-
-As a software developer with focus in data projects your mission is to plan, develop, deploy, and maintain a data pipeline.
-
-
-## The Challenge
-
-We are going to provide 2 data sources, a Postgres database and a CSV file.
-
-The CSV file represents details of orders from a ecommerce system.
-
-The database provided is a sample database provided by microsoft for education purposes called northwind, the only difference is that the order_detail table does not exists in this database you are beeing provided with.This order_details table is represented by the CSV file we provide.
-
-Schema of the original Northwind Database: 
+Schema do banco de dados original: 
 
 ![image](https://user-images.githubusercontent.com/49417424/105997621-9666b980-608a-11eb-86fd-db6b44ece02a.png)
 
-Your mission is to build a pipeline that extracts the data everyday from both sources and write the data first to local disk, and second to a database of your choice. For this challenge, the CSV file and the database will be static, but in any real world project, both data sources would be changing constantly.
+O desafio é construir uma pipeline que extrai os dados todos os dias de ambas as fontes e escreve primeiramente no disco local e posteriormente em um banco de dados de sua escolha. 
 
+É importante que todos os passos sejam isolados, ou seja, deve ser possível executar um step sem executar os demais.
 
-Its important that all writing steps are isolated from each other, you shoud be able to run any step without executing the others.
+## Passo 1
 
-For the first step, where you write data to local disk, you should write one file for each table and one file for the input CSV file. This pipeline will run everyday, so there should be a separation in the file paths you will create for each source(CSV or Postgres), table and execution day combination, e.g.:
+Para esse primeiro passo, no qual você deve escrecer os dados para o disco local, deve haver um arquivo para cada tabela do banco de dados e um para o arquivo CSV. Essa pipeline deve ter uma separação no caminho dos arquivos para cada fonte de dados (Postgres ou CSV), nome da tabela e data de execução, por exemplo:
 
 ```
 /data/postgres/{table}/2021-01-01/file.format
@@ -38,53 +24,167 @@ For the first step, where you write data to local disk, you should write one fil
 /data/csv/2021-01-02/file.format
 ```
 
-you are free to chose the naming and the format of the file you are going to save.
+Você tem a liberdade de escolher o nome e formato de arquivos que serão utilizados.
 
-At step 2, you should load the data from the local filesystem to the final database that you chosed. 
+## Passo 2
 
-The final goal is to be able to run a query that shows the orders and its details. The Orders are placed in a table called **orders** at the postgres Northwind database. The details are placed at the csv file provided, and each line has an **order_id** field pointing the **orders** table.
+No segundo step, você deve carregar os dados do disco local e escrever no banco de dados escolhido. Lembre sempre de justificar as escolhas tomadas durante o processo.
 
-How you are going to build this query will heavily depend on which database you choose and how you will load the data this database.
+## Passo 3
 
-The pipeline will look something like this:
+O objetivo final é realizar uma query que mostre as ordens e seus detalhes. As informações de ordens estão em uma tabela chamada "orders", que vem do banco de dados Northwind e os detalhes no arquivo CSV disponibilizado. O relacionamento das tabelas é através do campo "order_id".
+
+A pipeline deve seguir esse formato:
 
 ![image](https://user-images.githubusercontent.com/49417424/105993225-e2aefb00-6084-11eb-96af-3ec3716b151a.png)
 
 
+## Requisitos
 
-## Requirements
+- Todas as tasks devem ser idempotentes, a pipeline deve poder rodar mais de uma vez no dia e o resultado ser exatamente o mesmo
+- O step 2 depende do 1, então não deve ser possível executar o segundo se o primeiro não ter sucesso
+- Você deve extrair todas as tabelas das fontes disponibilizadas, independente se serão utilizadas posteriormente
+- Deve ser possível identificar onde a pipeline falhar, caso der erro em algum step
+- Deve ser disponibilizadas instruções para execução da pipeline; quando mais fácil, melhor
+- Deve ser gerado um CSV ou JSON com o resultado da query final
+- Não precisa agendar a execução da pipeline, mas deve ser possível executar em dias diferentes, ou seja, deve ser passado um argumento com a data desejada e a pipeline reprocessar os dados daquele dia específico.
 
-- All tasks should be idempotent, you should be able the whole pipeline for a day and the result should be always the same
-- Step 2 depends on both tasks of step 1, so you should not be able to run step 2 for a day if the tasks from step 1 did not succeed
-- You should extract all the tables from the source database, it does not matter that you will not use most of them for the final step.
-- You should be able to tell where the pipeline failed clearly, so you know from which step you should rerun the pipeline
-- You have to provide clear instructions on how to run the whole pipeline. The easier the better.
-- You have to provide a csv or json file with the result of the final query at the final database.
-- You dont have to actually schedule the pipeline, but you should assume that it will run for different days.
-- Your pipeline should be prepared to run for past days, meaning you should be able to pass an argument to the pipeline with a day from the past, and it should reprocess the data for that day. Since the data for this challenge is static, the only difference for each day of execution will be the output paths.
+## Setup Necessário
 
-## Things that Matters
+O banco de dados pode ser configurado utilizando docker compose. Para mais instruções: https://docs.docker.com/compose/install/
 
-- Clean and organized code.
-- Good decisions at which step (which database, which file format..) and good arguments to back those decisions up.
+As credenciais estão disponíveis no arquivo docker-compose.yml
 
-## Setup of the source database
+# Pipeline
 
-The source database can be set up using docker compose.
-You can install following the instructions at 
-https://docs.docker.com/compose/install/
+## Instruções para execução da pipeline:
 
-With docker compose installed simply run
+- o arquivo .ipynb deve estar salvo na pasta code-challenge-main e pode ser executado via Visual Studio Code, desde que a extensão Jupyter esteja instalada.
+- deve ser executado o pip install das seguintes ibliotecas, caso não estejam instaladas ainda:
+    - pip install psycopg2
+    - pip install pandas
+    - pip install pymongo
+- o parâmetro de data deve ser passado na variável processing_date, seguindo as instruções de formato comentadas no código ('yyyy-MM-dd' ou str(date.today())).
 
+## Banco de dados e formato de arquivo utilizado:
+
+Foi utilizado como banco de dados o sistema MongoDB, tendo em vista a base de armazenamento desse sistema ser em documentos. Foi realizada a configuração de network access para permitir todos os endereços de IP e o acesso ao banco através do seguinte usuário e senha: northwind_user e thewindisblowing, respectivamente.
+
+A escolha de utilização do MongoDB foi visando o crescimento exponencial dos dados (escalabilidade) e a capacidade em que esse banco de dados tem de garantir alta disponibilidade por meio de um processo de replicação. Esse banco também fornece
+suporte oficial de driver para praticamente todas as linguagens populares, garantindo uma maior facilidade de trabalho.
+
+A estrutura de documentos foi organizada a partir de collections, na qual cada tabela gerou uma collection nomeada {tabela}_{processing_date}_collection, para uma melhor organização dentro do banco de dados. Os documentos foram modelados através da formatação JSON e, em seguida, inseridos no MongoDB onde são convertidos em um formato binário para armazenamento. O formato JSON agrega flexibilidade aos documentos, trazendo um arquivo semi-estruturado que permite um schema evolution, conforme a necessidade da empresa.
+
+## Step 1
+
+Foram utilizadas as bibliotecas psycopg2 (conexão banco PostgreSQL), os (interação com o Sistema Operacional e disco local), datetime (geração da data atual) e pandas (escrita CSV).
+
+Inicialmente foi criada uma variável chamada processing_date para definição de qual data seria executada. 
+
+Posteriormente foi criada uma função save_postgres_to_csv, com os parâmetros de nome da tabela e data de processamento. A função define o caminho a ser salvo os arquivos a partir do diretório em que o arquivo .ipynb está salvo e tenta criar a pasta de cada etapa (fonte - postgres/csv, nome tabela, data processamento) caso não exista. 
 ```
-docker-compose up
+current_path = os.getcwd()
+source = 'postgres'
+source_path = os.path.join(current_path, source)
+
+#create source folder if not exists
+try:
+    os.mkdir(source_path)
+    print(f'path created: ', source_path)
+except:
+    pass
+
+#create specific table folder if not exists
+table_path = os.path.join(source_path, table)
+
+try:
+    os.mkdir(table_path)
+    print(f'path created: ', table_path)
+except:
+    pass
+
+date_path = os.path.join(table_path, processing_date)
+
+#create processing date folder if not exists
+try:
+    os.mkdir(date_path)
+    print(f'path created: ', date_path)
+except:
+    pass
+
+filename = f"{table}.csv"      
+final_path = os.path.join(date_path, filename)
+```
+Com o caminho para salvar os arquivos criado, a função conecta no banco de dados e realiza a query que exporta para CSV.
+```
+conn = psycopg2.connect(host = "localhost", database="northwind", user="northwind_user", password=<password>)
+```
+Por fim, a função escreve o CSV gerado no caminho definido, com encoding UTF-8
+```
+cur = conn.cursor()
+sql = f"COPY (select * from {table}) TO STDOUT WITH CSV HEADER"  
+
+with open(final_path, "w", encoding = 'utf-8') as file:
+    cur.copy_expert(sql, file)
+    file.close 
 ```
 
-You can find the credentials at the docker-compose.yml file
+A segunda função é específica para o arquivo CSV, chamada de save_csv_to_csv e recebe os mesmos parâmetros que a anterior. A lógica de criação do caminho para salvar os arquivos é a mesma e para escrita utiliza-se a função to_csv, com a opção de index = False.
 
-## Final Instruction
+Por fim, se a conexão com o banco Postgres ocorrer com sucesso, lê-se uma lista com o nome de cada uma das tabelas e executa-se as funções descritas acima.
 
-You can use any language you like, but keep in mind that we will have to run your pipeline, so choosing some languague or tooling that requires a complex environment might not be a good idea.
-You are free to use opensource libs and frameworks, but also keep in mind that **you have to write code**. Point and click tools are not allowed.
+## Step 2
 
-Thank you for participating!
+Foram utilizadas as bibliotecas pymongo (conexão banco MongoSB), os (interação com o Sistema Operacional e disco local), datetime (geração da data atual) e pandas (escrita CSV).
+
+Novamente chama-se a variável processing_date, pensando na execução dos steps separadamente.
+
+Foi criada a função csv_to_mongo, com os parâmetros de nome da tabela, fonte e data de processamento. Dentro dessa função, é feita a validação de execução do step anterior, garantindo que haja o csv escrito localmente antes de seguir com a execução.
+
+Posteriormente é feita a conexão com o banco:
+```
+client = pymongo.MongoClient("mongodb+srv://northwind_user:<password>@cluster0.ti9zwzb.mongodb.net/?retryWrites=true&w=majority")
+```
+Após a conexão, a função verifica se a tabela possui dados e segue para a criação do banco de dados e collection no mongo, caso não existam. Por fim, os dados são escritos na collection específica de cada tabela.
+```
+if data.empty:
+    print(f'{table} is an empty table, not added to the mongo collection')
+else:
+    #create mongodb database if not exists
+    if "northwind_db" not in client.list_database_names():
+        client["northwind_db"]
+        print("northwind_db dabatase created")
+
+    #create or overwrite mongodb collection 
+    db = client["northwind_db"]
+    collection = db[f"{table}_{processing_date}_collection"]
+    
+    if f"{table}_{processing_date}_collection" not in client["northwind_db"].list_collection_names():
+        collection
+        print(f"{table}_{processing_date}_collection created")
+    else:
+        collection.drop()
+        collection
+        print(f"{table}_{processing_date}_collection overwritten")
+
+    collection.insert_many(data.to_dict('records'))
+```
+
+Para chamar a execução da função, novamente utiliza-se uma lista com os nomes das tabelas.
+
+## Step 3
+
+Foram utilizadas as bibliotecas pymongo (conexão banco MongoSB) e pandas (escrita CSV).
+
+Novamente é realizada a conexão com o MongoDB e, dessa vez, é feita a leitura das tabelas "orders" e "order_details", passando o schema de cada uma delas.
+
+Por fim, é realizado um left join entre as tabelas utilizando o campo "order_id" como chave e salvo um csv do arquivo final.
+```
+final_df = orders.join(order_details.set_index('order_id'), on = 'order_id', how = 'left')
+
+current_path = os.getcwd()
+filename = f"full_order_table.csv"
+file_path = os.path.join(current_path, filename)
+
+final_df.to_csv(file_path, sep = ',', index = False, encoding = 'utf-8')
+```
