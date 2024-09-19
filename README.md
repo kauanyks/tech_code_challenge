@@ -1,22 +1,22 @@
-# Introdução 
+# Introduction 
 
-Projeto desenvolvido a partir de um desafio de Engenharia de Dados, no qual havia a necessidade de criação de uma pipeline completa.
+Project developed from a Data Engineering challenge, in which there was a need to create a complete pipeline.
 
-# O Desafio
+# The Challenge
 
-Foram disponibilizados duas fontes de dados: um banco de dados Postgres e um arquivo CSV. O arquivo CSV representa detalhes das ordens de um sistema de ecommerce. O banco de dados é disponibilizado pela Microsoft para fins educacionais, chamado de Northwind, a única diferença é que a tabela order_detail não existe no banco, já que está sendo disponibilizada em CSV.
+Two data sources were provided: a Postgres database and a CSV file. The CSV file represents order details from an ecommerce system. The database is provided by Microsoft for educational purposes, called Northwind, the only difference is that the order_detail table does not exist in the database, since it is being provided in CSV.
 
-Schema do banco de dados original: 
+Original database schema:
 
 ![image](https://user-images.githubusercontent.com/49417424/105997621-9666b980-608a-11eb-86fd-db6b44ece02a.png)
 
-O desafio é construir uma pipeline que extrai os dados todos os dias de ambas as fontes e escreve primeiramente no disco local e posteriormente em um banco de dados de sua escolha. 
+The challenge is to build a pipeline that extracts data every day from both sources and writes it first to local disk and then to a database of your choice.
 
-É importante que todos os passos sejam isolados, ou seja, deve ser possível executar um step sem executar os demais.
+It is important that all steps are isolated, that is, it must be possible to execute one step without executing the others.
 
-## Passo 1
+## Step 1
 
-Para esse primeiro passo, no qual você deve escrecer os dados para o disco local, deve haver um arquivo para cada tabela do banco de dados e um para o arquivo CSV. Essa pipeline deve ter uma separação no caminho dos arquivos para cada fonte de dados (Postgres ou CSV), nome da tabela e data de execução, por exemplo:
+For this first step, where you write the data to the local disk, there should be one file for each database table and one for the CSV file. This pipeline should have a separate file path for each data source (Postgres or CSV), table name, and execution date, for example:
 
 ```
 /data/postgres/{table}/2021-01-01/file.format
@@ -24,64 +24,64 @@ Para esse primeiro passo, no qual você deve escrecer os dados para o disco loca
 /data/csv/2021-01-02/file.format
 ```
 
-Você tem a liberdade de escolher o nome e formato de arquivos que serão utilizados.
+You have the freedom to choose the name and format of the files that will be used.
 
-## Passo 2
+## Step 2
 
-No segundo step, você deve carregar os dados do disco local e escrever no banco de dados escolhido. Lembre sempre de justificar as escolhas tomadas durante o processo.
+In the second step, you must load the data from the local disk and write it to the chosen database. Always remember to justify the choices made during the process.
 
-## Passo 3
+## Step 3
 
-O objetivo final é realizar uma query que mostre as ordens e seus detalhes. As informações de ordens estão em uma tabela chamada "orders", que vem do banco de dados Northwind e os detalhes no arquivo CSV disponibilizado. O relacionamento das tabelas é através do campo "order_id".
+The ultimate goal is to perform a query that shows the orders and their details. The order information is in a table called "orders", which comes from the Northwind database and the details in the CSV file provided. The relationship between the tables is through the "order_id" field.
 
-A pipeline deve seguir esse formato:
+The pipeline should follow this format:
 
 ![image](https://user-images.githubusercontent.com/49417424/105993225-e2aefb00-6084-11eb-96af-3ec3716b151a.png)
 
 
-## Requisitos
+## Requirements
 
-- Todas as tasks devem ser idempotentes, a pipeline deve poder rodar mais de uma vez no dia e o resultado ser exatamente o mesmo
-- O step 2 depende do 1, então não deve ser possível executar o segundo se o primeiro não ter sucesso
-- Você deve extrair todas as tabelas das fontes disponibilizadas, independente se serão utilizadas posteriormente
-- Deve ser possível identificar onde a pipeline falhar, caso der erro em algum step
-- Deve ser disponibilizadas instruções para execução da pipeline; quando mais fácil, melhor
-- Deve ser gerado um CSV ou JSON com o resultado da query final
-- Não precisa agendar a execução da pipeline, mas deve ser possível executar em dias diferentes, ou seja, deve ser passado um argumento com a data desejada e a pipeline reprocessar os dados daquele dia específico.
+- All tasks must be idempotent, the pipeline must be able to run more than once a day and the result must be exactly the same
+- Step 2 depends on step 1, so it should not be possible to run the second step if the first one is not successful
+- You must extract all tables from the available sources, regardless of whether they will be used later
+- It must be possible to identify where the pipeline fails, in case of an error in any step
+- Instructions for executing the pipeline must be made available; the easier, the better
+- A CSV or JSON file must be generated with the result of the final query
+- There is no need to schedule the execution of the pipeline, but it must be possible to run it on different days, that is, an argument with the desired date must be passed and the pipeline must reprocess the data from that specific day.
 
-## Setup Necessário
+## Required Setup
 
-O banco de dados pode ser configurado utilizando docker compose. Para mais instruções: https://docs.docker.com/compose/install/
+The database can be configured using docker compose. For more instructions: https://docs.docker.com/compose/install/
 
-As credenciais estão disponíveis no arquivo docker-compose.yml
+The credentials are available in the docker-compose.yml file
 
 # Pipeline
 
-## Instruções para execução da pipeline:
+## Instructions for running the pipeline:
 
-- o arquivo .ipynb deve estar salvo na pasta code-challenge-main e pode ser executado via Visual Studio Code, desde que a extensão Jupyter esteja instalada.
-- deve ser executado o pip install das seguintes ibliotecas, caso não estejam instaladas ainda:
-    - pip install psycopg2
-    - pip install pandas
-    - pip install pymongo
-- o parâmetro de data deve ser passado na variável processing_date, seguindo as instruções de formato comentadas no código ('yyyy-MM-dd' ou str(date.today())).
+- the .ipynb file must be saved in the code-challenge-main folder and can be run via Visual Studio Code, as long as the Jupyter extension is installed.
+- pip install of the following libraries must be run, if they are not already installed:
+        - pip install psycopg2
+        - pip install pandas
+        - pip install pymongo
+- the date parameter must be passed in the processing_date variable, following the format instructions commented in the code ('yyyy-MM-dd' or str(date.today())).
 
-## Banco de dados e formato de arquivo utilizado:
+## Database and file format used:
 
-Foi utilizado como banco de dados o sistema MongoDB, tendo em vista a base de armazenamento desse sistema ser em documentos. Foi realizada a configuração de network access para permitir todos os endereços de IP e o acesso ao banco através do seguinte usuário e senha: northwind_user e thewindisblowing, respectivamente.
+The MongoDB system was used as the database, since this system's storage base is in documents. The network access was configured to allow all IP addresses and access to the database through the following username and password: northwind_user and thewindisblowing, respectively.
 
-A escolha de utilização do MongoDB foi visando o crescimento exponencial dos dados (escalabilidade) e a capacidade em que esse banco de dados tem de garantir alta disponibilidade por meio de um processo de replicação. Esse banco também fornece
-suporte oficial de driver para praticamente todas as linguagens populares, garantindo uma maior facilidade de trabalho.
+The choice to use MongoDB was made with a view to the exponential growth of data (scalability) and the capacity of this database to guarantee high availability through a replication process. This database also provides
+official driver support for practically all popular languages, ensuring greater ease of work.
 
-A estrutura de documentos foi organizada a partir de collections, na qual cada tabela gerou uma collection nomeada {tabela}_{processing_date}_collection, para uma melhor organização dentro do banco de dados. Os documentos foram modelados através da formatação JSON e, em seguida, inseridos no MongoDB onde são convertidos em um formato binário para armazenamento. O formato JSON agrega flexibilidade aos documentos, trazendo um arquivo semi-estruturado que permite um schema evolution, conforme a necessidade da empresa.
+The document structure was organized based on collections, in which each table generated a collection named {table}_{processing_date}_collection, for better organization within the database. The documents were modeled through JSON formatting and then inserted into MongoDB where they are converted to a binary format for storage. The JSON format adds flexibility to documents, providing a semi-structured file that allows schema evolution, according to the company's needs.
 
 ## Step 1
 
-Foram utilizadas as bibliotecas psycopg2 (conexão banco PostgreSQL), os (interação com o Sistema Operacional e disco local), datetime (geração da data atual) e pandas (escrita CSV).
+The following libraries were used: psycopg2 (PostgreSQL database connection), os (interaction with the Operating System and local disk), datetime (generation of the current date) and pandas (CSV writing).
 
-Inicialmente foi criada uma variável chamada processing_date para definição de qual data seria executada. 
+Initially, a variable called processing_date was created to define which date would be executed.
 
-Posteriormente foi criada uma função save_postgres_to_csv, com os parâmetros de nome da tabela e data de processamento. A função define o caminho a ser salvo os arquivos a partir do diretório em que o arquivo .ipynb está salvo e tenta criar a pasta de cada etapa (fonte - postgres/csv, nome tabela, data processamento) caso não exista. 
+Later, a function save_postgres_to_csv was created, with the parameters of table name and processing date. The function defines the path to be saved to the files from the directory where the .ipynb file is saved and tries to create the folder for each step (source - postgres/csv, table name, processing date) if it does not exist.
 ```
 current_path = os.getcwd()
 source = 'postgres'
@@ -115,11 +115,11 @@ except:
 filename = f"{table}.csv"      
 final_path = os.path.join(date_path, filename)
 ```
-Com o caminho para salvar os arquivos criado, a função conecta no banco de dados e realiza a query que exporta para CSV.
+With the path to save the files created, the function connects to the database and performs the query that exports to CSV.
 ```
 conn = psycopg2.connect(host = "localhost", database="northwind", user="northwind_user", password=<password>)
 ```
-Por fim, a função escreve o CSV gerado no caminho definido, com encoding UTF-8
+Finally, the function writes the generated CSV to the defined path, with UTF-8 encoding.
 ```
 cur = conn.cursor()
 sql = f"COPY (select * from {table}) TO STDOUT WITH CSV HEADER"  
@@ -129,23 +129,23 @@ with open(final_path, "w", encoding = 'utf-8') as file:
     file.close 
 ```
 
-A segunda função é específica para o arquivo CSV, chamada de save_csv_to_csv e recebe os mesmos parâmetros que a anterior. A lógica de criação do caminho para salvar os arquivos é a mesma e para escrita utiliza-se a função to_csv, com a opção de index = False.
+The second function is specific to the CSV file, called save_csv_to_csv and receives the same parameters as the previous one. The logic for creating the path to save the files is the same and for writing, the to_csv function is used, with the index = False option.
 
-Por fim, se a conexão com o banco Postgres ocorrer com sucesso, lê-se uma lista com o nome de cada uma das tabelas e executa-se as funções descritas acima.
+Finally, if the connection to the Postgres database is successful, a list with the name of each of the tables is read and the functions described above are executed.
 
 ## Step 2
 
-Foram utilizadas as bibliotecas pymongo (conexão banco MongoSB), os (interação com o Sistema Operacional e disco local), datetime (geração da data atual) e pandas (escrita CSV).
+The following libraries were used: pymongo (connection to the MongoSB database), os (interaction with the Operating System and local disk), datetime (generation of the current date) and pandas (writing CSV).
 
-Novamente chama-se a variável processing_date, pensando na execução dos steps separadamente.
+The variable processing_date is called again, considering the execution of the steps separately.
 
-Foi criada a função csv_to_mongo, com os parâmetros de nome da tabela, fonte e data de processamento. Dentro dessa função, é feita a validação de execução do step anterior, garantindo que haja o csv escrito localmente antes de seguir com a execução.
+The function csv_to_mongo was created, with the parameters for the table name, source and processing date. Within this function, the execution of the previous step is validated, ensuring that the csv is written locally before continuing with the execution.
 
-Posteriormente é feita a conexão com o banco:
+The connection to the database is then made:
 ```
 client = pymongo.MongoClient("mongodb+srv://northwind_user:<password>@cluster0.ti9zwzb.mongodb.net/?retryWrites=true&w=majority")
 ```
-Após a conexão, a função verifica se a tabela possui dados e segue para a criação do banco de dados e collection no mongo, caso não existam. Por fim, os dados são escritos na collection específica de cada tabela.
+After connecting, the function checks if the table has data and proceeds to create the database and collection in mongo, if they do not exist. Finally, the data is written to the specific collection of each table.
 ```
 if data.empty:
     print(f'{table} is an empty table, not added to the mongo collection')
@@ -170,15 +170,15 @@ else:
     collection.insert_many(data.to_dict('records'))
 ```
 
-Para chamar a execução da função, novamente utiliza-se uma lista com os nomes das tabelas.
+To call the function execution, a list with the table names is used again.
 
 ## Step 3
 
-Foram utilizadas as bibliotecas pymongo (conexão banco MongoSB) e pandas (escrita CSV).
+The pymongo (MongoSB database connection) and pandas (CSV writing) libraries were used.
 
-Novamente é realizada a conexão com o MongoDB e, dessa vez, é feita a leitura das tabelas "orders" e "order_details", passando o schema de cada uma delas.
+A connection to MongoDB is made again and, this time, the "orders" and "order_details" tables are read, passing the schema of each of them.
 
-Por fim, é realizado um left join entre as tabelas utilizando o campo "order_id" como chave e salvo um csv do arquivo final.
+Finally, a left join is performed between the tables using the "order_id" field as the key and a csv of the final file is saved.
 ```
 final_df = orders.join(order_details.set_index('order_id'), on = 'order_id', how = 'left')
 
